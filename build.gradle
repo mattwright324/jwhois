@@ -42,6 +42,9 @@ task packageJar(type: Copy) {
     from layout.projectDirectory.file('README.md')
     into layout.buildDirectory.dir('package')
 
+    from layout.projectDirectory.file('LICENSE')
+    into layout.buildDirectory.dir('package')
+
     from layout.buildDirectory.file('libs/jwhois-all.jar')
     into layout.buildDirectory.dir('package')
 
