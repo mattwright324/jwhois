@@ -25,7 +25,7 @@ $ ./gradlew run
 
 ### Package
 
-Before a release, run the following command to package the files into the `libs/` folder to be zipped up.
+Before a release, run the following command to package the files into the `build/package/` folder to be zipped up.
 
 ```sh
 $ ./gradlew packageJar
