@@ -48,30 +48,36 @@ public class MainWindow extends JFrame {
 
         FlatLaf.setGlobalExtraDefaults(Collections.singletonMap("@accentColor", "#0094FF"));
 
-        var topPanel = new JPanel(new MigLayout("fillx"));
-        add(topPanel, "dock north");
-
         addressInput = new JTextField("google.com");
         addressInput.setColumns(9999);
-        topPanel.add(addressInput, "growx");
+
         whoisServerInput = new JTextField("whois.iana.org");
         whoisServerInput.setColumns(9999);
-        topPanel.add(whoisServerInput, "growx");
+
         search = new JButton("Search");
         search.addActionListener((e) -> new Thread(this::doSearch).start());
-        topPanel.add(search);
+
         clear = new JButton("Clear");
         clear.addActionListener((e) -> new Thread(this::clear).start());
+
+        var topPanel = new JPanel(new MigLayout("fillx"));
+        add(topPanel, "dock north");
+        topPanel.add(addressInput, "growx");
+        topPanel.add(whoisServerInput, "growx");
+        topPanel.add(search);
         topPanel.add(clear);
 
-        var split = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        add(split, "cell 0 0, grow");
         output = new JTextArea("Results output here");
         output.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
         output.setEditable(false);
+
         debug = new JTextArea("");
         debug.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
         debug.setEditable(false);
+
+        var split = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        split.setResizeWeight(0.9);
+        add(split, "grow");
         split.setTopComponent(new JScrollPane(output));
         split.setBottomComponent(new JScrollPane(debug));
 
@@ -110,6 +116,7 @@ public class MainWindow extends JFrame {
     }
 
     private void debugMessage(String message) {
+        logger.debug(message);
         SwingUtilities.invokeLater(() ->
             debug.append(String.format("%s > %s\n",
                     formatter.format(LocalTime.now()),
@@ -159,7 +166,7 @@ public class MainWindow extends JFrame {
 
                     // Get lookup response
                     var body = IOUtils.toString(reader);
-                    System.out.println(body);
+                    logger.debug("Response [{}, {}] Body={}", address, whoisServer, body);
                     SwingUtilities.invokeLater(() -> {
                         output.setText(body);
                         output.setSelectionStart(0);
@@ -193,6 +200,7 @@ public class MainWindow extends JFrame {
             Thread.sleep(500);
         } catch (Exception e) {
             debugMessage(e.getClass().getSimpleName() + ": " + e.getMessage());
+            logger.error(e);
         } finally {
             searchRunning = false;
             enabled(true, addressInput, whoisServerInput, search, clear);

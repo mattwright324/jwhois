@@ -1,4 +1,15 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath "gradle.plugin.com.github.johnrengelman:shadow:7.1.2"
+    }
+}
+
 plugins {
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
     id "application"
 }
 
@@ -13,8 +24,30 @@ java {
     }
 }
 
-tasks.jar {
-    manifest.attributes["Main-Class"] = "io.mattw.jwhois.Application"
+jar {
+    manifest {
+        // fix for shadow plugin + log4j
+        attributes 'Multi-Release': 'true'
+    }
+}
+
+def buildTime() {
+    return new Date().format('yyyyMMdd.HHmmss')
+}
+
+task packageJar(type: Copy) {
+    delete layout.buildDirectory.dir('package')
+    dependsOn('shadowJar')
+
+    from layout.projectDirectory.file('README.md')
+    into layout.buildDirectory.dir('package')
+
+    from layout.buildDirectory.file('libs/jwhois-all.jar')
+    into layout.buildDirectory.dir('package')
+
+    def version = buildTime();
+    from layout.buildDirectory.file('package/jwhois-all.jar')
+    rename { String fileName -> fileName.replace('all', version) }
 }
 
 // Setup application, dependencies
@@ -26,15 +59,12 @@ application {
 
 dependencies {
     implementation 'commons-io:commons-io:2.15.1'
-    implementation 'org.apache.commons:commons-lang3:3.12.0'
-    implementation 'org.apache.commons:commons-text:1.10.0'
-    implementation 'org.apache.logging.log4j:log4j-api:2.19.0'
-    implementation 'org.apache.logging.log4j:log4j-core:2.19.0'
+    implementation 'org.apache.logging.log4j:log4j-api:2.23.0'
+    implementation 'org.apache.logging.log4j:log4j-core:2.23.0'
 
     // UI
     implementation 'com.formdev:flatlaf:3.4'
     implementation 'com.formdev:flatlaf-extras:3.4'
-    implementation 'com.formdev:flatlaf-swingx:3.4'
     implementation 'com.formdev:flatlaf-intellij-themes:3.4'
-    implementation 'com.miglayout:miglayout-swing:11.0'
+    implementation 'com.miglayout:miglayout-swing:11.3'
 }

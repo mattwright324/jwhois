@@ -14,7 +14,7 @@ public class Application {
         logger.info("Main.main({})", () -> Arrays.toString(args));
 
         try {
-            FlatStyle.setupFromPrefName(FlatStyle.FLATLAF_MACOS_DARK.getDisplayName());
+            FlatStyle.setupFromPrefName(FlatStyle.FLATLAF_MACOS_DARK.getPrefName());
             System.setProperty("flatlaf.menuBarEmbedded", "true");
 
             JFrame.setDefaultLookAndFeelDecorated(true);
